@@ -32,6 +32,7 @@ public class JustSnip {
 	private XWPFDocument xwpfDoc;
 	private int intX, intY, intWidth, intHeight;
 	private String strSavedFilePath;
+	int shotCounter=0;
 
 	public String getStrSavedFilePath() {
 		return strSavedFilePath;
@@ -75,8 +76,9 @@ public class JustSnip {
 			xwpfParagraph = xwpfDoc.createParagraph();
 		}
 		XWPFRun xwpfRun = xwpfParagraph.createRun();
-		// r.setText(imgFile);
-		// r.addBreak();
+		shotCounter+=1;
+		xwpfRun.setText(imgFile+"_"+shotCounter);
+		xwpfRun.addBreak();
 
 		FileInputStream fileIn = new FileInputStream(strImgFilePath);
 		xwpfRun.addPicture(fileIn, Document.PICTURE_TYPE_PNG, strImgFilePath, Units.toEMU(400), Units.toEMU(200));
