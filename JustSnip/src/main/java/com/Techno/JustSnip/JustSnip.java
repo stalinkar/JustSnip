@@ -26,7 +26,7 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 public class JustSnip {
 	
-	private static final String strJustSnipPath = System.getProperty("user.home")+"\\Documents\\";
+	private static final String strJustSnipPath = System.getProperty("user.home")+"\\Documents\\JustSnip\\";
 	private File file;
 	private XWPFParagraph xwpfParagraph;
 	private XWPFDocument xwpfDoc;
@@ -45,18 +45,23 @@ public class JustSnip {
 		this.intWidth = intWidth;
 		this.intHeight = intHeight;
 		screenRect = new Rectangle(intX, intY, intWidth, intHeight);
-		file = new File(strJustSnipPath+SetFileName()+".docx");
+		SetFileName(strJustSnipPath);
 	}	
 	
 	protected JustSnip() {
 		screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-		file = new File(strJustSnipPath+SetFileName()+".docx");
+		SetFileName(strJustSnipPath);
 	}
 	
-	public String SetFileName() {
+	public void SetFileName(String strJustSnipPath) {
+		File theDir = new File(strJustSnipPath);
+		if (!theDir.exists()){
+		    theDir.mkdirs();
+		}
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy_hhmmss");
-		return formatter.format(date);
+		//return formatter.format(date);
+		file = new File(strJustSnipPath+formatter.format(date)+".docx");
 	}
 
 	public static void main(String[] args) throws AWTException, IOException, InvalidFormatException {
@@ -77,18 +82,17 @@ public class JustSnip {
 		}
 		XWPFRun xwpfRun = xwpfParagraph.createRun();
 		shotCounter+=1;
-		xwpfRun.setText(imgFile+"_"+shotCounter);
+		//xwpfRun.setText(imgFile+"_"+shotCounter);
+		xwpfRun.setText(String.valueOf(shotCounter));
 		xwpfRun.addBreak();
 
 		FileInputStream fileIn = new FileInputStream(strImgFilePath);
 		xwpfRun.addPicture(fileIn, Document.PICTURE_TYPE_PNG, strImgFilePath, Units.toEMU(400), Units.toEMU(200));
 		FileOutputStream out = new FileOutputStream(file);
 		xwpfDoc.write(out);
-		String[] strFileName = file.getName().split("[\\s]");
+		strSavedFilePath = file.getPath();
 		out.close();
 		xwpfDoc.close();
-		strSavedFilePath = strJustSnipPath+"JustSnip\\"+strFileName[strFileName.length-1];
-		FileUtils.moveFile(file, new File(strSavedFilePath));
 		fileIn.close();
 		imgFile.delete();
 	}
