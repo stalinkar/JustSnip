@@ -1,0 +1,8 @@
+# Default ignored files
+/.idea
+/target
+/.settings
+/.classpath
+.project
+.classpath
+.metadata

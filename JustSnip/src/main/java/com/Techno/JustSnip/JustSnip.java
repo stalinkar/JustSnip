@@ -16,7 +16,6 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.Document;
@@ -26,11 +25,10 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 public class JustSnip {
 	
-	private static final String strJustSnipPath = System.getProperty("user.home")+"\\Documents\\JustSnip\\";
+	static String strJustSnipPath = "";
 	private File file;
 	private XWPFParagraph xwpfParagraph;
 	private XWPFDocument xwpfDoc;
-	private int intX, intY, intWidth, intHeight;
 	private String strSavedFilePath;
 	int shotCounter=0;
 
@@ -40,37 +38,37 @@ public class JustSnip {
 	Rectangle screenRect;
 	
 	protected JustSnip(int intX, int intY, int intWidth, int intHeight) {
-		this.intX = intX;
-		this.intY = intY;
-		this.intWidth = intWidth;
-		this.intHeight = intHeight;
 		screenRect = new Rectangle(intX, intY, intWidth, intHeight);
-		SetFileName(strJustSnipPath);
+//		SetFileName(strJustSnipPath);
 	}	
 	
 	protected JustSnip() {
 		screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-		SetFileName(strJustSnipPath);
+//		SetFileName(strJustSnipPath);
 	}
 	
 	public void SetFileName(String strJustSnipPath) {
+		strJustSnipPath = (strJustSnipPath.isEmpty())?System.getProperty("user.home")+"\\Documents\\JustSnip\\":strJustSnipPath;
 		File theDir = new File(strJustSnipPath);
-		if (!theDir.exists()){
+		if (!theDir.exists()&& !strJustSnipPath.endsWith("-")){
 		    theDir.mkdirs();
 		}
-		Date date = new Date();
-		SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy_hhmmss");
-		//return formatter.format(date);
-		file = new File(strJustSnipPath+formatter.format(date)+".docx");
+		if(file==null || !file.toPath().toString().contains(strJustSnipPath)) {
+			Date date = new Date();
+			SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy_hhmmss");
+			//return formatter.format(date);
+			file = new File(strJustSnipPath+formatter.format(date)+".docx");
+		}
 	}
 
-	public static void main(String[] args) throws AWTException, IOException, InvalidFormatException {
-		JustSnip localObj = new JustSnip();
-		String strImgFilePath = localObj.TakeScreenShot();
-		localObj.SaveImgInWord(strImgFilePath);
-	}
+//	public static void main(String[] args) throws AWTException, IOException, InvalidFormatException {
+//		JustSnip localObj = new JustSnip();
+//		String strImgFilePath = localObj.TakeScreenShot();
+//		localObj.SaveImgInWord(strImgFilePath);
+//	}
 
 	public void SaveImgInWord(String strImgFilePath) throws FileNotFoundException, IOException, InvalidFormatException {
+		SetFileName(strJustSnipPath);
 		File imgFile = new File(strImgFilePath);
 		if (file.exists()) {
 			xwpfDoc = new XWPFDocument(new FileInputStream(file));
