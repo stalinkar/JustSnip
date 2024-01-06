@@ -31,6 +31,7 @@ public class JustSnip {
 	private XWPFDocument xwpfDoc;
 	private String strSavedFilePath;
 	int shotCounter=0;
+	Robot robot;
 
 	public String getStrSavedFilePath() {
 		return strSavedFilePath;
@@ -39,11 +40,23 @@ public class JustSnip {
 	
 	protected JustSnip(int intX, int intY, int intWidth, int intHeight) {
 		screenRect = new Rectangle(intX, intY, intWidth, intHeight);
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		SetFileName(strJustSnipPath);
 	}	
 	
 	protected JustSnip() {
 		screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		SetFileName(strJustSnipPath);
 	}
 	
@@ -79,13 +92,14 @@ public class JustSnip {
 			xwpfParagraph = xwpfDoc.createParagraph();
 		}
 		XWPFRun xwpfRun = xwpfParagraph.createRun();
-		shotCounter+=1;
-		//xwpfRun.setText(imgFile+"_"+shotCounter);
-		xwpfRun.setText(String.valueOf(shotCounter));
-		xwpfRun.addBreak();
+//		shotCounter+=1;
+//		//xwpfRun.setText(imgFile+"_"+shotCounter);
+//		xwpfRun.setText(String.valueOf(shotCounter));
+//		xwpfRun.addBreak();
 
 		FileInputStream fileIn = new FileInputStream(strImgFilePath);
-		xwpfRun.addPicture(fileIn, Document.PICTURE_TYPE_PNG, strImgFilePath, Units.toEMU(400), Units.toEMU(200));
+		xwpfRun.addPicture(fileIn, Document.PICTURE_TYPE_PNG, strImgFilePath, Units.toEMU(500), Units.toEMU(320));
+		xwpfRun.addBreak();
 		FileOutputStream out = new FileOutputStream(file);
 		xwpfDoc.write(out);
 		strSavedFilePath = file.getPath();
@@ -96,7 +110,7 @@ public class JustSnip {
 	}
 	public String TakeScreenShot() throws IOException, AWTException {
 		String path = strJustSnipPath+"Shot.png";
-		BufferedImage capture = new Robot().createScreenCapture(screenRect);
+		BufferedImage capture = robot.createScreenCapture(screenRect);
 		ImageIO.write(capture, "png", new File(path));
 		return path;
 	}
