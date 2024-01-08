@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -27,13 +28,9 @@ public class JustSnip {
 	
 	static String strJustSnipPath = "";
 	private File file;
-	private XWPFParagraph xwpfParagraph;
-	private XWPFDocument xwpfDoc;
 	private String strSavedFilePath;
 	int shotCounter=0;
 	Robot robot;
-	
-	Rectangle rectangle;
 
 	public String getStrSavedFilePath() {
 		return strSavedFilePath;
@@ -82,11 +79,13 @@ public class JustSnip {
 //		localObj.SaveImgInWord(strImgFilePath);
 //	}
 
-	public void SaveImgInWord(String strImgFilePath) throws FileNotFoundException, IOException, InvalidFormatException {
+	public void SaveImgInWord(String strImgFilePath) throws IOException, InvalidFormatException {
 		SetFileName(strJustSnipPath);
 		File imgFile = new File(strImgFilePath);
+		XWPFParagraph xwpfParagraph;
+		XWPFDocument xwpfDoc;
 		if (file.exists()) {
-			xwpfDoc = new XWPFDocument(new FileInputStream(file));
+			xwpfDoc = new XWPFDocument(Files.newInputStream(file.toPath()));
 			List<XWPFParagraph> paragraphs = xwpfDoc.getParagraphs();
 			xwpfParagraph = paragraphs.get(paragraphs.size() - 1);
 		} else {
