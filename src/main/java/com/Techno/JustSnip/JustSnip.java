@@ -32,6 +32,8 @@ public class JustSnip {
 	private String strSavedFilePath;
 	int shotCounter=0;
 	Robot robot;
+	
+	Rectangle rectangle;
 
 	public String getStrSavedFilePath() {
 		return strSavedFilePath;
