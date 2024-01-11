@@ -1,4 +1,4 @@
-package com.Techno.JustSnip;
+package com.JustSnip;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 

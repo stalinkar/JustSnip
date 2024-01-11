@@ -1,4 +1,4 @@
-package com.Techno.JustSnip;
+package com.JustSnip;
 
 import java.awt.AWTException;
 import java.awt.Rectangle;
