@@ -66,7 +66,7 @@ public class JustSnipApp {
         // btnJustSnip.setIcon(new ImageIcon(System.getProperty("user.dir") +
         // "\\src\\main\\resources\\snip.PNG"));
         frmJustSnip.getContentPane().add(btnJustSnip);
-        strTargetPath = "C:\\Users\\Stalin\\Documents\\JustSnip\\";
+        strTargetPath = System.getProperty("user.home")+"\\Documents\\JustSnip\\";
         final String strDefaultMsg = "File will be saved in ";
         txtMessage = new JTextField(strDefaultMsg + strTargetPath + "{filename}");
         txtMessage.setBounds(10, 230, 433, 19);
@@ -142,7 +142,7 @@ public class JustSnipApp {
                     strTargetPath = strTargetPath + "\\";
                     txtMessage.setText(strDefaultMsg + strTargetPath + "\\");
                 } else {
-                    strTargetPath = "C:\\Users\\Stalin\\Documents\\JustSnip\\";
+                    strTargetPath = System.getProperty("user.home")+"\\Documents\\JustSnip\\";
                 }
             }
         });
