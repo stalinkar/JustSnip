@@ -73,12 +73,6 @@ public class JustSnip {
 		}
 	}
 
-//	public static void main(String[] args) throws AWTException, IOException, InvalidFormatException {
-//		JustSnip localObj = new JustSnip();
-//		String strImgFilePath = localObj.TakeScreenShot();
-//		localObj.SaveImgInWord(strImgFilePath);
-//	}
-
 	public void SaveImgInWord(String strImgFilePath) throws IOException, InvalidFormatException {
 		SetFileName(strJustSnipPath);
 		File imgFile = new File(strImgFilePath);
