@@ -27,7 +27,8 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 public class JustSnip {
 	
 	static String strJustSnipPath = "";
-	private File file;
+	static String strFileName = "";
+	static File file;
 	private String strSavedFilePath;
 	int shotCounter=0;
 	Robot robot;
@@ -60,16 +61,16 @@ public class JustSnip {
 	}
 	
 	public void SetFileName(String strJustSnipPath) {
-		strJustSnipPath = (strJustSnipPath.isEmpty())?System.getProperty("user.home")+"\\Documents\\JustSnip\\":strJustSnipPath;
+		//strJustSnipPath = (strJustSnipPath.isEmpty())?System.getProperty("user.home")+"\\Documents\\JustSnip\\":strJustSnipPath;
 		File theDir = new File(strJustSnipPath);
-		if (!theDir.exists()&& !strJustSnipPath.endsWith("-")){
+		if (!theDir.exists()){
 		    theDir.mkdirs();
 		}
 		if(file==null || !file.toPath().toString().contains(strJustSnipPath)) {
 			Date date = new Date();
 			SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy_hhmmss");
 			//return formatter.format(date);
-			file = new File(strJustSnipPath+formatter.format(date)+".docx");
+			file = new File(strJustSnipPath+"\\"+strFileName+"-"+formatter.format(date)+".docx");
 		}
 	}
 
