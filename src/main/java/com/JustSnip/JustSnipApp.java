@@ -166,18 +166,26 @@ public class JustSnipApp {
                     try {
                     	JustSnip.file = null;
                         Thread.sleep(2000);
-                        while (frmJustSnip.getExtendedState() == 1) {
-                            Thread.sleep(42);
-                            JustSnip.strJustSnipPath = strTargetPath;
-                            JustSnip.strFileName = strTargetFileName;
-                            objJustSnip.SaveImgInWord(objJustSnip.TakeScreenShot());
+                        long counter = 0;
+                        JustSnip.strJustSnipPath = strTargetPath;
+                        JustSnip.strFileName = strTargetFileName;
+                        JustSnip.strImgForVideoPath = strTargetPath+"\\"+strTargetFileName;
+                        File theDir = new File(strTargetPath+"\\"+strTargetFileName);
+                        if (!theDir.exists()) {
+                            theDir.mkdirs();
                         }
-                    } catch (AWTException | IOException | InvalidFormatException | InterruptedException e1) {
+                        while (frmJustSnip.getExtendedState() == 1) {
+                            //Thread.sleep(40);
+                            objJustSnip.TakeScreenShot(counter++);
+                        }
+                    } catch (AWTException | IOException | InterruptedException e1) {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
                 } else {
                     btnRecord.setText("Record");
+                    String strVideoPath = objJustSnip.SaveImgInVideo();
+                    txtMessage.setText("File saved at " + strVideoPath);
                     btnJustSnip.setEnabled(true);
                     btnAutoSnip.setEnabled(true);
                 }
