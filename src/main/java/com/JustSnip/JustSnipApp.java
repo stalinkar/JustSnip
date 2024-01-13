@@ -242,6 +242,7 @@ public class JustSnipApp {
         		strTargetPath = txtTargetFolder.getText();
         		strTargetFileName = txtFileName.getText();
         		//file.createNewFile();
+        		strTargetPath = strTargetPath.endsWith("\\")?strTargetPath:strTargetPath+"\\";
 				prop.setProperty("TargetPath", strTargetPath);
 				prop.setProperty("TargetFile", strTargetFileName);
 				try {
@@ -254,7 +255,7 @@ public class JustSnipApp {
 				}
         	}
         });
-        btnSave.setBounds(83, 198, 133, 21);
+        btnSave.setBounds(20, 198, 133, 21);
         frmJustSnip.getContentPane().add(btnSave);
         
         btnHelp = new JButton("Help");
@@ -267,8 +268,26 @@ public class JustSnipApp {
         		JOptionPane.showMessageDialog(btnSave, strMsg, "About Me/ Help", JOptionPane.INFORMATION_MESSAGE);
         	}
         });
-        btnHelp.setBounds(231, 198, 133, 21);
+        btnHelp.setBounds(310, 198, 133, 21);
         frmJustSnip.getContentPane().add(btnHelp);
+        
+        JButton btnOpenFile = new JButton("Open Target File");
+        btnOpenFile.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		String strText = txtMessage.getText();
+        		if(!strText.contains(strDefaultMsg)) {
+        			try {
+						Desktop.getDesktop().open(new File(strText.split("File saved at ")[1]));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+        		}else {
+        			JOptionPane.showMessageDialog(btnOpenFile, "You are yet to genarete a file", "Stop!", JOptionPane.INFORMATION_MESSAGE);
+        		}
+        	}
+        });
+        btnOpenFile.setBounds(163, 198, 137, 21);
+        frmJustSnip.getContentPane().add(btnOpenFile);
         btnJustSnip.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
