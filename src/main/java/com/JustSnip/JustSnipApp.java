@@ -8,20 +8,15 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 
 public class JustSnipApp {
 
-    protected String strTargetPath = System.getProperty("user.home")+"\\Documents\\JustSnip\\";
+    protected String strTargetPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\";
     protected String strTargetFileName = "ScreenShot";
     protected long interval = 2000;
     JustSnip objJustSnip;
@@ -32,59 +27,24 @@ public class JustSnipApp {
     private JTextField txtTargetFolder;
     private JTextField txtFileName;
     private JSpinner spinnerCount;
-	private String strPropertyPath = System.getProperty("user.home")+"\\Documents\\JustSnip\\Config\\";
-	private String strPropertyFile = "justsnip.config";
-	private File file;
-	private FileInputStream fis;
-	private FileOutputStream fos;
-	private Properties prop;
-	private JButton btnHelp;
+    private final String strPropertyPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\Config\\";
+    private final String strPropertyFile = "justsnip.config";
+    private File file;
+    private FileInputStream fis;
+    private FileOutputStream fos;
+    private Properties prop;
+    private JButton btnHelp;
 
     /**
      * Create the application.
      */
     public JustSnipApp() {
-    	setProperty();
+        setProperty();
         initialize();
         objJustSnip = new JustSnip();
     }
 
     /**
-     * Setting Target path and File Name for the file.
-     */
-    private void setProperty() {
-    	File theDir = new File(strPropertyPath);
-		if (!theDir.exists()){
-		    theDir.mkdirs();
-		}
-		prop = new Properties();
-		file = new File(strPropertyPath+strPropertyFile);
-		if(file.exists()) {
-			try {
-				fis = new FileInputStream(strPropertyPath+strPropertyFile);
-				prop.load(fis);
-				strTargetPath = prop.getProperty("TargetPath");
-				strTargetFileName = prop.getProperty("TargetFile");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}else {
-			try {
-				file.createNewFile();
-				prop.setProperty("TargetPath", strTargetPath);
-				prop.setProperty("TargetFile", strTargetFileName);
-				fos = new FileOutputStream(file);
-				prop.store(fos, "Target Path");
-				fos.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
      * Launch the application.
      */
     public static void main(String[] args) {
@@ -98,6 +58,41 @@ public class JustSnipApp {
                 }
             }
         });
+    }
+
+    /**
+     * Setting Target path and File Name for the file.
+     */
+    private void setProperty() {
+        File theDir = new File(strPropertyPath);
+        if (!theDir.exists()) {
+            theDir.mkdirs();
+        }
+        prop = new Properties();
+        file = new File(strPropertyPath + strPropertyFile);
+        if (file.exists()) {
+            try {
+                fis = new FileInputStream(strPropertyPath + strPropertyFile);
+                prop.load(fis);
+                strTargetPath = prop.getProperty("TargetPath");
+                strTargetFileName = prop.getProperty("TargetFile");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                file.createNewFile();
+                prop.setProperty("TargetPath", strTargetPath);
+                prop.setProperty("TargetFile", strTargetFileName);
+                fos = new FileOutputStream(file);
+                prop.store(fos, "Target Path");
+                fos.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -118,7 +113,7 @@ public class JustSnipApp {
         // "\\src\\main\\resources\\snip.PNG"));
         frmJustSnip.getContentPane().add(btnJustSnip);
         final String strDefaultMsg = "File will be saved in ";
-        txtMessage = new JTextField(strDefaultMsg + strTargetPath +"\\"+ strTargetFileName+"-{timestamp}.docx");
+        txtMessage = new JTextField(strDefaultMsg + strTargetPath + "\\" + strTargetFileName + "-{timestamp}.docx");
         txtMessage.setBounds(10, 240, 433, 19);
         txtMessage.setEditable(false);
         frmJustSnip.getContentPane().add(txtMessage);
@@ -134,7 +129,7 @@ public class JustSnipApp {
                     btnRecord.setEnabled(false);
                     frmJustSnip.setExtendedState(JFrame.ICONIFIED);
                     try {
-                    	JustSnip.file = null;
+                        JustSnip.file = null;
                         while (frmJustSnip.getExtendedState() == 1) {
                             Thread.sleep(interval);
                             JustSnip.strJustSnipPath = strTargetPath;
@@ -165,7 +160,7 @@ public class JustSnipApp {
                     btnAutoSnip.setEnabled(false);
                     frmJustSnip.setExtendedState(JFrame.ICONIFIED);
                     try {
-                    	JustSnip.file = null;
+                        JustSnip.file = null;
                         Thread.sleep(2000);
                         while (frmJustSnip.getExtendedState() == 1) {
                             Thread.sleep(42);
@@ -228,39 +223,36 @@ public class JustSnipApp {
         JLabel lblNewLabel_1 = new JLabel("Second(s) 1-60");
         lblNewLabel_1.setBounds(348, 42, 95, 13);
         frmJustSnip.getContentPane().add(lblNewLabel_1);
-        
+
         JButton btnSave = new JButton("Save File Path");
         btnSave.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		strTargetPath = txtTargetFolder.getText();
-        		strTargetFileName = txtFileName.getText();
-        		//file.createNewFile();
-                strTargetPath = strTargetPath.endsWith("\\")?strTargetPath:strTargetPath+"\\";
-				prop.setProperty("TargetPath", strTargetPath);
-				prop.setProperty("TargetFile", strTargetFileName);
-				try {
-					fos = new FileOutputStream(file);
-					prop.store(fos, "Target Path");
-					fos.close();
+            public void actionPerformed(ActionEvent e) {
+                strTargetPath = txtTargetFolder.getText();
+                strTargetFileName = txtFileName.getText();
+                //file.createNewFile();
+                strTargetPath = strTargetPath.endsWith("\\") ? strTargetPath : strTargetPath + "\\";
+                prop.setProperty("TargetPath", strTargetPath);
+                prop.setProperty("TargetFile", strTargetFileName);
+                try {
+                    fos = new FileOutputStream(file);
+                    prop.store(fos, "Target Path");
+                    fos.close();
                     JustSnip.file = null;
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-        	}
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
         });
         btnSave.setBounds(20, 198, 133, 21);
         frmJustSnip.getContentPane().add(btnSave);
-        
+
         btnHelp = new JButton("Help");
         btnHelp.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		String strMsg = "Author      : Stalin Kar\n"
-        					+   "Reviewer : Abhinav Sinha\n"
-        					+ 	"\n"
-        					+ 	"This is a supperting tool for taking screenshot.";
-        		JOptionPane.showMessageDialog(btnSave, strMsg, "About Me/ Help", JOptionPane.INFORMATION_MESSAGE);
-        	}
+            public void actionPerformed(ActionEvent e) {
+                String strMsg = "Author      : Stalin Kar\n" + "Reviewer : Abhinav Sinha\n" + "\n" + "This is a supperting tool for taking screenshot.";
+                JOptionPane.showMessageDialog(btnSave, strMsg, "About Me/ Help", JOptionPane.INFORMATION_MESSAGE);
+            }
         });
         btnHelp.setBounds(310, 198, 133, 21);
         frmJustSnip.getContentPane().add(btnHelp);
@@ -269,13 +261,13 @@ public class JustSnipApp {
         btnOpenFile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String strText = txtMessage.getText();
-                if(!strText.contains(strDefaultMsg)) {
+                if (!strText.contains(strDefaultMsg)) {
                     try {
                         Desktop.getDesktop().open(new File(strText.split("File saved at ")[1]));
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
-                }else {
+                } else {
                     JOptionPane.showMessageDialog(btnOpenFile, "You are yet to genarete a file", "Stop!", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
