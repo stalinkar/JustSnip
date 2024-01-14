@@ -146,6 +146,7 @@ public class JustSnipApp {
                         e1.printStackTrace();
                     }
                 } else {
+                	txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
                     btnAutoSnip.setText("Auto Snip!");
                     btnJustSnip.setEnabled(true);
                     btnRecord.setEnabled(true);
@@ -249,6 +250,7 @@ public class JustSnipApp {
 					fos = new FileOutputStream(file);
 					prop.store(fos, "Target Path");
 					fos.close();
+                	JustSnip.file = null;
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
