@@ -16,6 +16,8 @@ import java.util.Properties;
 
 public class JustSnipApp {
 
+    private final String strPropertyPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\Config\\";
+    private final String strPropertyFile = "justsnip.config";
     protected String strTargetPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\";
     protected String strTargetFileName = "ScreenShot";
     protected long interval = 2000;
@@ -27,8 +29,6 @@ public class JustSnipApp {
     private JTextField txtTargetFolder;
     private JTextField txtFileName;
     private JSpinner spinnerCount;
-    private final String strPropertyPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\Config\\";
-    private final String strPropertyFile = "justsnip.config";
     private File file;
     private FileInputStream fis;
     private FileOutputStream fos;
