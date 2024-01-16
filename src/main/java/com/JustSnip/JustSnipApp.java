@@ -8,20 +8,15 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 
 public class JustSnipApp {
 
-    protected String strTargetPath = System.getProperty("user.home")+"\\Documents\\JustSnip\\";
+    protected String strTargetPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\";
     protected String strTargetFileName = "ScreenShot";
     protected long interval = 2000;
     JustSnip objJustSnip;
@@ -32,19 +27,19 @@ public class JustSnipApp {
     private JTextField txtTargetFolder;
     private JTextField txtFileName;
     private JSpinner spinnerCount;
-	private String strPropertyPath = System.getProperty("user.home")+"\\Documents\\JustSnip\\Config\\";
-	private String strPropertyFile = "justsnip.config";
-	private File file;
-	private FileInputStream fis;
-	private FileOutputStream fos;
-	private Properties prop;
-	private JButton btnHelp;
+    private final String strPropertyPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\Config\\";
+    private final String strPropertyFile = "justsnip.config";
+    private File file;
+    private FileInputStream fis;
+    private FileOutputStream fos;
+    private Properties prop;
+    private JButton btnHelp;
 
     /**
      * Create the application.
      */
     public JustSnipApp() {
-    	setProperty();
+        setProperty();
         initialize();
         objJustSnip = new JustSnip();
     }
@@ -118,7 +113,7 @@ public class JustSnipApp {
         // "\\src\\main\\resources\\snip.PNG"));
         frmJustSnip.getContentPane().add(btnJustSnip);
         final String strDefaultMsg = "File will be saved in ";
-        txtMessage = new JTextField(strDefaultMsg + strTargetPath +"\\"+ strTargetFileName+"-{timestamp}.docx");
+        txtMessage = new JTextField(strDefaultMsg + strTargetPath + "\\" + strTargetFileName + "-{timestamp}.docx");
         txtMessage.setBounds(10, 240, 433, 19);
         txtMessage.setEditable(false);
         frmJustSnip.getContentPane().add(txtMessage);
@@ -134,7 +129,7 @@ public class JustSnipApp {
                     btnRecord.setEnabled(false);
                     frmJustSnip.setExtendedState(JFrame.ICONIFIED);
                     try {
-                    	JustSnip.file = null;
+                        JustSnip.file = null;
                         while (frmJustSnip.getExtendedState() == 1) {
                             Thread.sleep(interval);
                             JustSnip.strJustSnipPath = strTargetPath;
@@ -165,7 +160,7 @@ public class JustSnipApp {
                     btnAutoSnip.setEnabled(false);
                     frmJustSnip.setExtendedState(JFrame.ICONIFIED);
                     try {
-                    	JustSnip.file = null;
+                        JustSnip.file = null;
                         Thread.sleep(2000);
                         long counter = 0;
                         JustSnip.strJustSnipPath = strTargetPath;
@@ -272,7 +267,7 @@ public class JustSnipApp {
         });
         btnHelp.setBounds(310, 198, 133, 21);
         frmJustSnip.getContentPane().add(btnHelp);
-        
+
         JButton btnOpenFile = new JButton("Open Target File");
         btnOpenFile.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
