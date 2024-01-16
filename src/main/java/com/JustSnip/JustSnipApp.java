@@ -45,6 +45,41 @@ public class JustSnipApp {
     }
 
     /**
+     * Setting Target path and File Name for the file.
+     */
+    private void setProperty() {
+    	File theDir = new File(strPropertyPath);
+		if (!theDir.exists()){
+		    theDir.mkdirs();
+		}
+		prop = new Properties();
+		file = new File(strPropertyPath+strPropertyFile);
+		if(file.exists()) {
+			try {
+				fis = new FileInputStream(strPropertyPath+strPropertyFile);
+				prop.load(fis);
+				strTargetPath = prop.getProperty("TargetPath");
+				strTargetFileName = prop.getProperty("TargetFile");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else {
+			try {
+				file.createNewFile();
+				prop.setProperty("TargetPath", strTargetPath);
+				prop.setProperty("TargetFile", strTargetFileName);
+				fos = new FileOutputStream(file);
+				prop.store(fos, "Target Path");
+				fos.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
      * Launch the application.
      */
     public static void main(String[] args) {
@@ -58,41 +93,6 @@ public class JustSnipApp {
                 }
             }
         });
-    }
-
-    /**
-     * Setting Target path and File Name for the file.
-     */
-    private void setProperty() {
-        File theDir = new File(strPropertyPath);
-        if (!theDir.exists()) {
-            theDir.mkdirs();
-        }
-        prop = new Properties();
-        file = new File(strPropertyPath + strPropertyFile);
-        if (file.exists()) {
-            try {
-                fis = new FileInputStream(strPropertyPath + strPropertyFile);
-                prop.load(fis);
-                strTargetPath = prop.getProperty("TargetPath");
-                strTargetFileName = prop.getProperty("TargetFile");
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                file.createNewFile();
-                prop.setProperty("TargetPath", strTargetPath);
-                prop.setProperty("TargetFile", strTargetFileName);
-                fos = new FileOutputStream(file);
-                prop.store(fos, "Target Path");
-                fos.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
@@ -141,7 +141,7 @@ public class JustSnipApp {
                         e1.printStackTrace();
                     }
                 } else {
-                    txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
+                	txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
                     btnAutoSnip.setText("Auto Snip!");
                     btnJustSnip.setEnabled(true);
                     btnRecord.setEnabled(true);
@@ -162,18 +162,26 @@ public class JustSnipApp {
                     try {
                         JustSnip.file = null;
                         Thread.sleep(2000);
-                        while (frmJustSnip.getExtendedState() == 1) {
-                            Thread.sleep(42);
-                            JustSnip.strJustSnipPath = strTargetPath;
-                            JustSnip.strFileName = strTargetFileName;
-                            objJustSnip.SaveImgInWord(objJustSnip.TakeScreenShot());
+                        long counter = 0;
+                        JustSnip.strJustSnipPath = strTargetPath;
+                        JustSnip.strFileName = strTargetFileName;
+                        JustSnip.strImgForVideoPath = strTargetPath+"\\"+strTargetFileName;
+                        File theDir = new File(strTargetPath+"\\"+strTargetFileName);
+                        if (!theDir.exists()) {
+                            theDir.mkdirs();
                         }
-                    } catch (AWTException | IOException | InvalidFormatException | InterruptedException e1) {
+                        while (frmJustSnip.getExtendedState() == 1) {
+                            //Thread.sleep(40);
+                            objJustSnip.TakeScreenShot(counter++);
+                        }
+                    } catch (AWTException | IOException | InterruptedException e1) {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
                 } else {
                     btnRecord.setText("Record");
+                    String strVideoPath = objJustSnip.SaveImgInVideo();
+                    txtMessage.setText("File saved at " + strVideoPath);
                     btnJustSnip.setEnabled(true);
                     btnAutoSnip.setEnabled(true);
                 }
@@ -223,54 +231,57 @@ public class JustSnipApp {
         JLabel lblNewLabel_1 = new JLabel("Second(s) 1-60");
         lblNewLabel_1.setBounds(348, 42, 95, 13);
         frmJustSnip.getContentPane().add(lblNewLabel_1);
-
+        
         JButton btnSave = new JButton("Save File Path");
         btnSave.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                strTargetPath = txtTargetFolder.getText();
-                strTargetFileName = txtFileName.getText();
-                //file.createNewFile();
-                strTargetPath = strTargetPath.endsWith("\\") ? strTargetPath : strTargetPath + "\\";
-                prop.setProperty("TargetPath", strTargetPath);
-                prop.setProperty("TargetFile", strTargetFileName);
-                try {
-                    fos = new FileOutputStream(file);
-                    prop.store(fos, "Target Path");
-                    fos.close();
-                    JustSnip.file = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-            }
+        	public void actionPerformed(ActionEvent e) {
+        		strTargetPath = txtTargetFolder.getText();
+        		strTargetFileName = txtFileName.getText();
+        		//file.createNewFile();
+        		strTargetPath = strTargetPath.endsWith("\\")?strTargetPath:strTargetPath+"\\";
+				prop.setProperty("TargetPath", strTargetPath);
+				prop.setProperty("TargetFile", strTargetFileName);
+				try {
+					fos = new FileOutputStream(file);
+					prop.store(fos, "Target Path");
+					fos.close();
+                	JustSnip.file = null;
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+        	}
         });
         btnSave.setBounds(20, 198, 133, 21);
         frmJustSnip.getContentPane().add(btnSave);
-
+        
         btnHelp = new JButton("Help");
         btnHelp.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String strMsg = "Author      : Stalin Kar\n" + "Reviewer : Abhinav Sinha\n" + "\n" + "This is a supperting tool for taking screenshot.";
-                JOptionPane.showMessageDialog(btnSave, strMsg, "About Me/ Help", JOptionPane.INFORMATION_MESSAGE);
-            }
+        	public void actionPerformed(ActionEvent e) {
+        		String strMsg = "Author      : Stalin Kar\n"
+        					+   "Reviewer : Abhinav Sinha\n"
+        					+ 	"\n"
+        					+ 	"This is a supperting tool for taking screenshot.";
+        		JOptionPane.showMessageDialog(btnSave, strMsg, "About Me/ Help", JOptionPane.INFORMATION_MESSAGE);
+        	}
         });
         btnHelp.setBounds(310, 198, 133, 21);
         frmJustSnip.getContentPane().add(btnHelp);
 
         JButton btnOpenFile = new JButton("Open Target File");
         btnOpenFile.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String strText = txtMessage.getText();
-                if (!strText.contains(strDefaultMsg)) {
-                    try {
-                        Desktop.getDesktop().open(new File(strText.split("File saved at ")[1]));
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(btnOpenFile, "You are yet to genarete a file", "Stop!", JOptionPane.INFORMATION_MESSAGE);
-                }
-            }
+        	public void actionPerformed(ActionEvent e) {
+        		String strText = txtMessage.getText();
+        		if(!strText.contains(strDefaultMsg)) {
+        			try {
+						Desktop.getDesktop().open(new File(strText.split("File saved at ")[1]));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+        		}else {
+        			JOptionPane.showMessageDialog(btnOpenFile, "You are yet to genarete a file", "Stop!", JOptionPane.INFORMATION_MESSAGE);
+        		}
+        	}
         });
         btnOpenFile.setBounds(163, 198, 137, 21);
         frmJustSnip.getContentPane().add(btnOpenFile);
