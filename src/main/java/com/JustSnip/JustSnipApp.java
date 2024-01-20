@@ -246,6 +246,10 @@ public class JustSnipApp {
 					prop.store(fos, "Target Path");
 					fos.close();
                 	JustSnip.file = null;
+                	File theDir = new File(strTargetPath);
+                    if (!theDir.exists()) {
+                        theDir.mkdirs();
+                    }
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
