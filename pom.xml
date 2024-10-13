@@ -50,5 +50,10 @@
 		    <artifactId>ffmpeg-platform</artifactId>
 		    <version>3.4.2-1.4.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.melloware</groupId>
+			<artifactId>jintellitype</artifactId>
+			<version>1.4.1</version>
+		</dependency>
 	</dependencies>
 </project>
