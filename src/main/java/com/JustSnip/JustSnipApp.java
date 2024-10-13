@@ -20,8 +20,8 @@ public class JustSnipApp {
     protected String strTargetFileName = "ScreenShot";
     protected long interval = 2000;
     JustSnip objJustSnip;
-    private JFrame frmJustSnip;
-    private JTextField txtMessage;
+    JFrame frmJustSnip;
+    JTextField txtMessage;
     private JButton btnAutoSnip;
     private JButton btnRecord;
     private JTextField txtTargetFolder;
@@ -82,18 +82,18 @@ public class JustSnipApp {
 	/**
      * Launch the application.
      */
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    JustSnipApp window = new JustSnipApp();
-                    window.frmJustSnip.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+//    public static void main(String[] args) {
+//        EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                try {
+//                    JustSnipApp window = new JustSnipApp();
+//                    window.frmJustSnip.setVisible(true);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
     /**
      * Initialize the contents of the frame.
@@ -170,6 +170,7 @@ public class JustSnipApp {
                         if (!theDir.exists()) {
                             theDir.mkdirs();
                         }
+                        JustSnipRunner.threadIsActive = true;
                         while (frmJustSnip.getExtendedState() == 1) {
                             //Thread.sleep(40);
                             objJustSnip.TakeScreenShot(counter++);
@@ -180,8 +181,9 @@ public class JustSnipApp {
                     }
                 } else {
                     btnRecord.setText("Record");
-                    String strVideoPath = objJustSnip.SaveImgInVideo();
-                    txtMessage.setText("File saved at " + strVideoPath);
+//                    String strVideoPath = objJustSnip.SaveImgInVideo();
+//                    txtMessage.setText("File saved at " + strVideoPath);
+                    JustSnipRunner.threadIsActive = false;
                     btnJustSnip.setEnabled(true);
                     btnAutoSnip.setEnabled(true);
                 }
