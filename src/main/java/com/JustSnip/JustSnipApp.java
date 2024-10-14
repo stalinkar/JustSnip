@@ -124,6 +124,7 @@ public class JustSnipApp {
         btnAutoSnip.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (btnAutoSnip.getText().equals("Auto Snip!")) {
+                    setTargetFolderAndFilePath();
                     btnAutoSnip.setText("Stop!");
                     btnJustSnip.setEnabled(false);
                     btnRecord.setEnabled(false);
@@ -137,8 +138,7 @@ public class JustSnipApp {
                             objJustSnip.SaveImgInWord(objJustSnip.TakeScreenShot());
                         }
                     } catch (AWTException | IOException | InvalidFormatException | InterruptedException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                        setErrorMessagePopUp(e1);
                     }
                 } else {
                     txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
@@ -155,6 +155,7 @@ public class JustSnipApp {
         btnRecord.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (btnRecord.getText().equals("Record")) {
+                    setTargetFolderAndFilePath();
                     btnRecord.setText("Stop!");
                     btnJustSnip.setEnabled(false);
                     btnAutoSnip.setEnabled(false);
@@ -169,8 +170,7 @@ public class JustSnipApp {
                             objJustSnip.SaveImgInWord(objJustSnip.TakeScreenShot());
                         }
                     } catch (AWTException | IOException | InvalidFormatException | InterruptedException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                        setErrorMessagePopUp(e1);
                     }
                 } else {
                     btnRecord.setText("Record");
@@ -227,25 +227,7 @@ public class JustSnipApp {
         JButton btnSave = new JButton("Save File Path");
         btnSave.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                strTargetPath = txtTargetFolder.getText();
-                strTargetFileName = txtFileName.getText();
-                //file.createNewFile();
-                strTargetPath = strTargetPath.endsWith("\\") ? strTargetPath : strTargetPath + "\\";
-                prop.setProperty("TargetPath", strTargetPath);
-                prop.setProperty("TargetFile", strTargetFileName);
-                try {
-                    fos = new FileOutputStream(file);
-                    prop.store(fos, "Target Path");
-                    fos.close();
-                    JustSnip.file = null;
-                    File theDir = new File(strTargetPath);
-                    if (!theDir.exists()) {
-                        theDir.mkdirs();
-                    }
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
+                saveFilePath();
             }
         });
         btnSave.setBounds(20, 198, 133, 21);
@@ -254,8 +236,8 @@ public class JustSnipApp {
         btnHelp = new JButton("Help");
         btnHelp.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String strMsg = "Author      : Stalin Kar\n" + "Reviewer : Abhinav Sinha\n" + "\n" + "This is a supperting tool for taking screenshot.";
-                JOptionPane.showMessageDialog(btnSave, strMsg, "About Me/ Help", JOptionPane.INFORMATION_MESSAGE);
+                String strMsg = "Author      : Stalin Kar\n" + "Reviewer : Abhinav Sinha\n" + "\n" + "This is a supporting tool for taking screenshot.";
+                JOptionPane.showMessageDialog(frmJustSnip, strMsg, "About Me/ Help", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         btnHelp.setBounds(310, 198, 133, 21);
@@ -280,20 +262,75 @@ public class JustSnipApp {
         frmJustSnip.getContentPane().add(btnOpenFile);
         btnJustSnip.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                setTargetFolderAndFilePath();
                 try {
                     JustSnipApp.this.frmJustSnip.setVisible(false);
                     Thread.sleep(500);
                     JustSnip.strJustSnipPath = strTargetPath;
                     JustSnip.strFileName = strTargetFileName;
                     objJustSnip.SaveImgInWord(objJustSnip.TakeScreenShot());
+                    txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
+                    JustSnipApp.this.frmJustSnip.setVisible(true);
                 } catch (AWTException | IOException | InvalidFormatException | InterruptedException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                    setErrorMessagePopUp(e1);
                 }
-                txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
-                JustSnipApp.this.frmJustSnip.setVisible(true);
             }
         });
 
+    }
+
+    private void setErrorMessagePopUp(Exception e1) {
+        String strMsg = e1.toString().substring(0, 30) + "...\n\n " + "Please check below points:\n " + "1. File Format - Do not provide 'Special chars' in file name\n " + "2. Avoid giving the file name of length more that 50 chars (including space)";
+        JustSnipApp.this.frmJustSnip.setVisible(true);
+        JOptionPane.showMessageDialog(frmJustSnip, strMsg, "Something went wrong", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void setTargetFilePathMessagePopUp(String strFieldName) {
+        String strMsg = "Looks like you have changed '" + strFieldName + "' path\n" + "Do you want to update the '" + strFieldName + "'?";
+//    	JOptionPane.showMessageDialog(frmJustSnip, strMsg, "Attention !!!", JOptionPane.WARNING_MESSAGE);
+        int optionType = JOptionPane.showConfirmDialog(frmJustSnip, strMsg, "Attention !!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (optionType == 0) {
+            saveFilePath();
+        } else {
+            resetFilePath();
+        }
+    }
+
+    private void resetFilePath() {
+        txtTargetFolder.setText(strTargetPath);
+        txtFileName.setText(strTargetFileName);
+    }
+
+    private void saveFilePath() {
+        strTargetPath = txtTargetFolder.getText();
+        strTargetFileName = txtFileName.getText();
+        //file.createNewFile();
+        strTargetPath = strTargetPath.endsWith("\\") ? strTargetPath : strTargetPath + "\\";
+        prop.setProperty("TargetPath", strTargetPath);
+        prop.setProperty("TargetFile", strTargetFileName);
+        try {
+            fos = new FileOutputStream(file);
+            prop.store(fos, "Target Path");
+            fos.close();
+            JustSnip.file = null;
+            File theDir = new File(strTargetPath);
+            if (!theDir.exists()) {
+                theDir.mkdirs();
+            }
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+    }
+
+    private void setTargetFolderAndFilePath() {
+        if (!strTargetFileName.equals(txtFileName.getText())) {
+            setTargetFilePathMessagePopUp("Target File Name");
+        }
+        String strNewTargetPath = txtTargetFolder.getText();
+        strNewTargetPath = strNewTargetPath.endsWith("\\") ? strNewTargetPath : strNewTargetPath + "\\";
+        if (!strTargetPath.equals(strNewTargetPath)) {
+            setTargetFilePathMessagePopUp("Target Folder");
+        }
     }
 }
