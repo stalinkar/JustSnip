@@ -29,7 +29,6 @@ public class JustSnip {
     static String strFileName = "";
     static String strImgForVideoPath = "";
     static File file;
-    int shotCounter = 0;
     Robot robot;
     Rectangle screenRect;
     private String strSavedFilePath;
@@ -60,7 +59,7 @@ public class JustSnip {
         return strSavedFilePath;
     }
 
-    void SetFileName(String strJustSnipPath) {
+    void setFileName(String strJustSnipPath) {
         //strJustSnipPath = (strJustSnipPath.isEmpty())?System.getProperty("user.home")+"\\Documents\\JustSnip\\":strJustSnipPath;
         File theDir = new File(strJustSnipPath);
         if (!theDir.exists()) {
@@ -74,8 +73,8 @@ public class JustSnip {
         }
     }
 
-    void SaveImgInWord(String strImgFilePath) throws IOException, InvalidFormatException {
-        SetFileName(strJustSnipPath);
+    void saveImgInWord(String strImgFilePath) throws IOException, InvalidFormatException {
+        setFileName(strJustSnipPath);
         File imgFile = new File(strImgFilePath);
         XWPFParagraph xwpfParagraph;
         XWPFDocument xwpfDoc;
@@ -88,10 +87,6 @@ public class JustSnip {
             xwpfParagraph = xwpfDoc.createParagraph();
         }
         XWPFRun xwpfRun = xwpfParagraph.createRun();
-//		shotCounter+=1;
-//		//xwpfRun.setText(imgFile+"_"+shotCounter);
-//		xwpfRun.setText(String.valueOf(shotCounter));
-//		xwpfRun.addBreak();
 
         FileInputStream fileIn = new FileInputStream(strImgFilePath);
         xwpfRun.addPicture(fileIn, Document.PICTURE_TYPE_PNG, strImgFilePath, Units.toEMU(500), Units.toEMU(320));
@@ -105,14 +100,14 @@ public class JustSnip {
         imgFile.delete();
     }
 
-    String TakeScreenShot() throws IOException, AWTException {
+    String takeScreenShot() throws IOException {
         String path = strJustSnipPath + "Shot.png";
         BufferedImage capture = robot.createScreenCapture(screenRect);
         ImageIO.write(capture, "png", new File(path));
         return path;
     }
 
-    void TakeScreenShot(long counter) throws IOException, AWTException {
+    void takeScreenShot(long counter) throws IOException {
         String index = "";
         switch (String.valueOf(counter).length()) {
             case 1:
@@ -132,7 +127,7 @@ public class JustSnip {
         ImageIO.write(capture, "png", new File(strImgForVideoPath + "\\" + index + ".png"));
     }
 
-    String SaveImgInVideo() {
+    String saveImgInVideo() {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy_hhmmss");
         String imageFolderPath = strJustSnipPath + strFileName;
@@ -171,7 +166,6 @@ public class JustSnip {
                     imageFile.delete();
                 }
             }
-
             recorder.stop();
             recorder.release();
 
@@ -180,5 +174,4 @@ public class JustSnip {
         }
         return outputVideoPath;
     }
-
 }
