@@ -305,6 +305,5 @@ public class JustSnipApp {
                 JustSnipApp.this.frmJustSnip.setVisible(true);
             }
         });
-
     }
 }
