@@ -88,7 +88,7 @@ public class JustSnipApp {
             e.printStackTrace();
         }
 
-
+    }
     /**
      * Initialize the contents of the frame.
      */
@@ -334,8 +334,8 @@ public class JustSnipApp {
                     Thread.sleep(500);
                     JustSnip.strJustSnipPath = strTargetPath;
                     JustSnip.strFileName = strTargetFileName;
-                    objJustSnip.SaveImgInWord(objJustSnip.TakeScreenShot());
-                } catch (AWTException | IOException | InvalidFormatException | InterruptedException e1) {
+                    objJustSnip.saveImgInWord(objJustSnip.takeScreenShot());
+                } catch (IOException | InvalidFormatException | InterruptedException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
