@@ -29,20 +29,20 @@ public class JustSnip {
     static String strFileName = "";
     static String strImgForVideoPath = "";
     static File file;
-    int shotCounter = 0;
     Robot robot;
     Rectangle screenRect;
     private String strSavedFilePath;
+
+    // Shared date formatter to avoid creating multiple instances
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("ddMMyyyy_hhmmss");
 
     protected JustSnip(int intX, int intY, int intWidth, int intHeight) {
         screenRect = new Rectangle(intX, intY, intWidth, intHeight);
         try {
             robot = new Robot();
         } catch (AWTException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-//		SetFileName(strJustSnipPath);
     }
 
     protected JustSnip() {
@@ -50,103 +50,76 @@ public class JustSnip {
         try {
             robot = new Robot();
         } catch (AWTException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-//		SetFileName(strJustSnipPath);
     }
 
     public String getStrSavedFilePath() {
         return strSavedFilePath;
     }
 
-    void SetFileName(String strJustSnipPath) {
-        //strJustSnipPath = (strJustSnipPath.isEmpty())?System.getProperty("user.home")+"\\Documents\\JustSnip\\":strJustSnipPath;
+    void setFileName(String strJustSnipPath) {
         File theDir = new File(strJustSnipPath);
         if (!theDir.exists()) {
             theDir.mkdirs();
         }
         if (file == null || !file.toPath().toString().contains(strJustSnipPath)) {
             Date date = new Date();
-            SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy_hhmmss");
-            //return formatter.format(date);
-            file = new File(strJustSnipPath + "\\" + strFileName + "-" + formatter.format(date) + ".docx");
+            file = new File(strJustSnipPath + "/" + strFileName + "-" + DATE_FORMATTER.format(date) + ".docx");
         }
     }
 
-    void SaveImgInWord(String strImgFilePath) throws IOException, InvalidFormatException {
-        SetFileName(strJustSnipPath);
+    void saveImgInWord(String strImgFilePath) throws IOException, InvalidFormatException {
+        setFileName(strJustSnipPath);
         File imgFile = new File(strImgFilePath);
-        XWPFParagraph xwpfParagraph;
         XWPFDocument xwpfDoc;
         if (file.exists()) {
             xwpfDoc = new XWPFDocument(Files.newInputStream(file.toPath()));
-            List<XWPFParagraph> paragraphs = xwpfDoc.getParagraphs();
-            xwpfParagraph = paragraphs.get(paragraphs.size() - 1);
         } else {
             xwpfDoc = new XWPFDocument();
-            xwpfParagraph = xwpfDoc.createParagraph();
         }
+        XWPFParagraph xwpfParagraph = xwpfDoc.createParagraph();
         XWPFRun xwpfRun = xwpfParagraph.createRun();
-//		shotCounter+=1;
-//		//xwpfRun.setText(imgFile+"_"+shotCounter);
-//		xwpfRun.setText(String.valueOf(shotCounter));
-//		xwpfRun.addBreak();
 
-        FileInputStream fileIn = new FileInputStream(strImgFilePath);
-        xwpfRun.addPicture(fileIn, Document.PICTURE_TYPE_PNG, strImgFilePath, Units.toEMU(500), Units.toEMU(320));
-        xwpfRun.addBreak();
-        FileOutputStream out = new FileOutputStream(file);
-        xwpfDoc.write(out);
+        try (FileInputStream fileIn = new FileInputStream(strImgFilePath)) {
+            xwpfRun.addPicture(fileIn, Document.PICTURE_TYPE_PNG, strImgFilePath, Units.toEMU(500), Units.toEMU(320));
+            xwpfRun.addBreak();
+        }
+
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            xwpfDoc.write(out);
+        }
         strSavedFilePath = file.getPath();
-        out.close();
         xwpfDoc.close();
-        fileIn.close();
         imgFile.delete();
     }
 
-    String TakeScreenShot() throws IOException, AWTException {
+    String takeScreenShot() throws IOException {
         String path = strJustSnipPath + "Shot.png";
         BufferedImage capture = robot.createScreenCapture(screenRect);
         ImageIO.write(capture, "png", new File(path));
         return path;
     }
 
-    void TakeScreenShot(long counter) throws IOException, AWTException {
-        String index = "";
-        switch (String.valueOf(counter).length()) {
-            case 1:
-                index = "000" + counter;
-                break;
-            case 2:
-                index = "00" + counter;
-                break;
-            case 3:
-                index = "0" + counter;
-                break;
-            default:
-                index = "" + counter;
-                break;
-        }
+    void takeScreenShot(long counter) throws IOException {
+        String index = String.format("%04d", counter);
         BufferedImage capture = robot.createScreenCapture(screenRect);
-        ImageIO.write(capture, "png", new File(strImgForVideoPath + "\\" + index + ".png"));
+        ImageIO.write(capture, "png", new File(strImgForVideoPath + "/" + index + ".png"));
     }
 
-    String SaveImgInVideo() {
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy_hhmmss");
+    String saveImgInVideo() {
         String imageFolderPath = strJustSnipPath + strFileName;
-        String outputVideoPath = strJustSnipPath + strFileName + "\\" + strFileName + "-" + formatter.format(date) + ".mp4";
+        String outputVideoPath = strJustSnipPath + strFileName + "/" + strFileName + "-" + DATE_FORMATTER.format(new Date()) + ".mp4";
         int frameRate = 4;
+
         try {
             File imageFolder = new File(imageFolderPath);
             File[] imageFiles = imageFolder.listFiles();
 
             if (imageFiles == null || imageFiles.length == 0) {
                 return "No images found in the specified folder.";
-            } else {
-                Arrays.sort(imageFiles);
             }
+            Arrays.sort(imageFiles);
 
             // Get the dimensions of the first image
             BufferedImage firstImage = ImageIO.read(imageFiles[0]);
@@ -164,14 +137,13 @@ public class JustSnip {
 
             // Read each image and add it to the video
             for (File imageFile : imageFiles) {
-                if (!imageFile.getPath().endsWith(".mp4")) {
+                if (imageFile.getPath().endsWith(".png")) {
                     BufferedImage image = ImageIO.read(imageFile);
                     Frame frame = converter.convert(image);
                     recorder.record(frame);
                     imageFile.delete();
                 }
             }
-
             recorder.stop();
             recorder.release();
 
@@ -180,5 +152,4 @@ public class JustSnip {
         }
         return outputVideoPath;
     }
-
 }
