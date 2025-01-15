@@ -1,9 +1,14 @@
 package com.JustSnip;
 
+import com.melloware.jintellitype.JIntellitype;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.AWTEventListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -82,7 +87,7 @@ public class JustSnipApp {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
+
 
     /**
      * Initialize the contents of the frame.
@@ -316,5 +321,26 @@ public class JustSnipApp {
         if (!strTargetPath.equals(strNewTargetPath)) {
             setTargetFilePathMessagePopUp("Target Folder");
         }
+        JIntellitype.getInstance();// Register hotkey Ctrl+H
+        JIntellitype.getInstance().registerHotKey(1, JIntellitype.MOD_CONTROL, (int) 'K');
+
+        // Add hotkey listener
+        JIntellitype.getInstance().addHotKeyListener(hotkey -> {
+            if (hotkey == 1) {
+                try {
+                    if (frmJustSnip.getExtendedState() != 1) {
+                        frmJustSnip.setExtendedState(JFrame.ICONIFIED);
+                    }
+                    Thread.sleep(500);
+                    JustSnip.strJustSnipPath = strTargetPath;
+                    JustSnip.strFileName = strTargetFileName;
+                    objJustSnip.SaveImgInWord(objJustSnip.TakeScreenShot());
+                } catch (AWTException | IOException | InvalidFormatException | InterruptedException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
+            }
+        });
     }
 }
