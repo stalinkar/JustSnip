@@ -17,6 +17,8 @@ public class JustSnipApp {
     protected String strTargetPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\";
     protected String strTargetFileName = "ScreenShot";
     protected long interval = 2000;
+
+    long counter = 0;
     JustSnip objJustSnip;
     private JFrame frmJustSnip;
     private JTextField txtMessage;
@@ -194,6 +196,15 @@ public class JustSnipApp {
                 } catch (IOException | InvalidFormatException | InterruptedException e1) {
                     setErrorMessagePopUp(e1);
                 }
+            } else if (btnAutoSnip.getText().startsWith("Resume")) {
+                frmJustSnip.setExtendedState(JFrame.ICONIFIED);
+                try {
+                    while (frmJustSnip.getExtendedState() == JFrame.ICONIFIED) {
+                        objJustSnip.takeScreenShot(counter++);
+                    }
+                } catch (IOException e1) {
+                    setErrorMessagePopUp(e1);
+                }
             } else {
                 txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
                 btnAutoSnip.setText("Auto Snip!");
@@ -205,14 +216,16 @@ public class JustSnipApp {
         btnRecord.addActionListener(e -> {
             if (btnRecord.getText().equals("Record")) {
                 setTargetFolderAndFilePath();
+                btnRecord.setBounds(180, 10, 90, 53);
                 btnRecord.setText("Stop!");
+                btnJustSnip.setVisible(false);
                 btnJustSnip.setEnabled(false);
                 btnAutoSnip.setEnabled(false);
                 frmJustSnip.setExtendedState(JFrame.ICONIFIED);
                 try {
                     JustSnip.file = null;
                     Thread.sleep(2000);
-                    long counter = 0;
+                    counter = 0;
                     JustSnip.strJustSnipPath = strTargetPath;
                     JustSnip.strFileName = strTargetFileName;
                     JustSnip.strImgForVideoPath = strTargetPath + "\\" + strTargetFileName;
@@ -223,11 +236,19 @@ public class JustSnipApp {
                     while (frmJustSnip.getExtendedState() == JFrame.ICONIFIED) {
                         objJustSnip.takeScreenShot(counter++);
                     }
+                    btnAutoSnip.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                    btnAutoSnip.setBounds(50, 10, 90, 53);
+                    btnAutoSnip.setText("Resume");
+                    btnAutoSnip.setEnabled(true);
                 } catch (IOException | InterruptedException e1) {
                     setErrorMessagePopUp(e1);
                 }
             } else {
+                btnRecord.setBounds(210, 10, 90, 53);
                 btnRecord.setText("Record");
+                btnJustSnip.setVisible(true);
+                btnAutoSnip.setBounds(110, 10, 90, 53);
+                btnAutoSnip.setText("Auto Snip!");
                 String strVideoPath = objJustSnip.saveImgInVideo();
                 txtMessage.setText("File saved at " + strVideoPath);
                 btnJustSnip.setEnabled(true);
@@ -238,7 +259,7 @@ public class JustSnipApp {
         btnSave.addActionListener(e -> saveFilePath());
 
         btnHelp.addActionListener(e -> {
-            String strMsg = "Author      : Stalin Kar\n" + "Reviewer : Abhinav Sinha\n" + "\n" + "This is a supporting tool for taking screenshots.";
+            String strMsg = "Author      : Stalin Kar\n\n" + "This is a supporting tool for taking screenshots and recording\nscreen as part of Proof testing.";
             JOptionPane.showMessageDialog(frmJustSnip, strMsg, "About Me/ Help", JOptionPane.INFORMATION_MESSAGE);
         });
 
