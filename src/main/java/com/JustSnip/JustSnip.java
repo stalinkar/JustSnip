@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.function.Consumer;
 
 public class JustSnip {
 
@@ -99,44 +100,53 @@ public class JustSnip {
         return path;
     }
 
-    String saveImgInVideo() {
+    /**
+     * Refactored: saveImgInVideo() for background execution with optional progress reporting.
+     * Returns the output video path or throws an exception for error handling in the UI.
+     */
+    public String saveImgInVideo(Consumer<Integer> progressCallback) throws Exception {
         String imageFolderPath = strJustSnipPath + strFileName;
         String outputVideoPath = strJustSnipPath + strFileName + "/" + strFileName + "-" + DATE_FORMATTER.format(new Date()) + ".mp4";
         int frameRate = 4;
 
-        try {
-            File[] imageFiles = getImageFiles(imageFolderPath);
-            if (imageFiles == null || imageFiles.length == 0) {
-                return "No images found in the specified folder.";
-            }
-            Arrays.sort(imageFiles);
+        File[] imageFiles = getImageFiles(imageFolderPath);
+        if (imageFiles == null || imageFiles.length == 0) {
+            throw new IOException("No images found in the specified folder.");
+        }
+        Arrays.sort(imageFiles);
 
-            BufferedImage firstImage = ImageIO.read(imageFiles[0]);
-            int width = firstImage.getWidth();
-            int height = firstImage.getHeight();
+        BufferedImage firstImage = ImageIO.read(imageFiles[0]);
+        int width = firstImage.getWidth();
+        int height = firstImage.getHeight();
 
-            try (FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputVideoPath, width, height)) {
-                recorder.setVideoCodecName("libopenh264");
-                recorder.setFormat("mp4");
-                recorder.setFrameRate(frameRate);
-                recorder.start();
+        try (FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputVideoPath, width, height)) {
+            recorder.setVideoCodecName("libopenh264");
+            recorder.setFormat("mp4");
+            recorder.setFrameRate(frameRate);
+            recorder.start();
 
-                Java2DFrameConverter converter = new Java2DFrameConverter();
-                for (File imageFile : imageFiles) {
-                    if (imageFile.getPath().endsWith(".png")) {
-                        BufferedImage image = ImageIO.read(imageFile);
-                        Frame frame = converter.convert(image);
-                        recorder.record(frame);
-                        imageFile.delete();
-                    }
+            Java2DFrameConverter converter = new Java2DFrameConverter();
+            int totalImages = imageFiles.length;
+            int processedImages = 0;
+
+            for (File imageFile : imageFiles) {
+                if (imageFile.getPath().endsWith(".png")) {
+                    BufferedImage image = ImageIO.read(imageFile);
+                    Frame frame = converter.convert(image);
+                    recorder.record(frame);
+                    imageFile.delete();
+                }
+                processedImages++;
+                if (progressCallback != null) {
+                    int percent = (int) (((double) processedImages / totalImages) * 100);
+                    progressCallback.accept(percent); // For UI progress updates
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new Exception("Error during video creation: " + e.getMessage(), e);
         }
         return outputVideoPath;
     }
-
     private File[] getImageFiles(String imageFolderPath) {
         File imageFolder = new File(imageFolderPath);
         return imageFolder.listFiles();

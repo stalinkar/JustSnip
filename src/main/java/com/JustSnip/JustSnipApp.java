@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.List;
 
 public class JustSnipApp {
 
@@ -33,6 +34,7 @@ public class JustSnipApp {
     private JButton btnHelp;
     private JButton btnSave;
     private JButton btnOpenFile;
+    private JProgressBar progressBar;
 
     /**
      * Create the application.
@@ -99,7 +101,7 @@ public class JustSnipApp {
 
         final String strDefaultMsg = "File will be saved in ";
         txtMessage = new JTextField(strDefaultMsg + strTargetPath + "\\" + strTargetFileName + "-{timestamp}.docx");
-        txtMessage.setBounds(10, 240, 433, 19);
+        txtMessage.setBounds(10, 230, 433, 20);
         txtMessage.setEditable(false);
         frmJustSnip.getContentPane().add(txtMessage);
         txtMessage.setColumns(10);
@@ -160,6 +162,20 @@ public class JustSnipApp {
         btnOpenFile = new JButton("Open Target File");
         btnOpenFile.setBounds(163, 198, 137, 21);
         frmJustSnip.getContentPane().add(btnOpenFile);
+
+//        frmJustSnip.getContentPane().setLayout(null);
+
+        progressBar = new JProgressBar();
+        progressBar.setBounds(10, 255, 433, 10);
+        progressBar.setVisible(false);
+        progressBar.setStringPainted(true);
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(100);
+        progressBar.setValue(0);
+        progressBar.setString("0%");
+        progressBar.setForeground(Color.BLUE);
+        progressBar.setFont(new Font("Segoe UI", Font.PLAIN, 8));
+        frmJustSnip.getContentPane().add(progressBar);
     }
 
     private void addActionListeners() {
@@ -244,15 +260,43 @@ public class JustSnipApp {
                     setErrorMessagePopUp(e1);
                 }
             } else {
-                btnRecord.setBounds(210, 10, 90, 53);
-                btnRecord.setText("Record");
-                btnJustSnip.setVisible(true);
+                progressBar.setVisible(true);
                 btnAutoSnip.setBounds(110, 10, 90, 53);
                 btnAutoSnip.setText("Auto Snip!");
-                String strVideoPath = objJustSnip.saveImgInVideo();
-                txtMessage.setText("File saved at " + strVideoPath);
-                btnJustSnip.setEnabled(true);
-                btnAutoSnip.setEnabled(true);
+                btnAutoSnip.setEnabled(false);
+                btnRecord.setBounds(210, 10, 90, 53);
+                btnRecord.setText("Record");
+                btnRecord.setEnabled(false); // Disable until done
+                btnJustSnip.setVisible(true);
+                txtMessage.setText("Generating video, please wait...");
+//                String strVideoPath = objJustSnip.saveImgInVideo();
+//                txtMessage.setText("File saved at " + strVideoPath);
+                // Start video generation in background
+                new SwingWorker<String, Integer>() {
+                    @Override
+                    protected String doInBackground() throws Exception {
+                        return objJustSnip.saveImgInVideo(this::publish); // publish progress
+                    }
+                    @Override
+                    protected void process(List<Integer> chunks) {
+                        int latestProgress = chunks.get(chunks.size() - 1);
+                        progressBar.setValue(latestProgress);
+                        progressBar.setString(latestProgress + "%");
+                    }
+                    @Override
+                    protected void done() {
+                        try {
+                            String videoPath = get();
+                            txtMessage.setText("File saved at " + videoPath);
+                        } catch (Exception ex) {
+                            txtMessage.setText("Error generating video: " + ex.getMessage());
+                        }
+                        btnJustSnip.setEnabled(true);
+                        btnAutoSnip.setEnabled(true);
+                        btnRecord.setEnabled(true);
+                        progressBar.setVisible(false);
+                    }
+                }.execute();
             }
         });
 
@@ -283,7 +327,7 @@ public class JustSnipApp {
     }
 
     private void setErrorMessagePopUp(Exception e1) {
-        String strMsg = e1.toString().substring(0, 30) + "...\n\n " +
+        String strMsg = e1.toString().substring(0, 50) + "...\n\n " +
                 "Please check below points:\n " +
                 "1. File Format - Do not provide 'Special chars' in file name\n " +
                 "2. Avoid giving the file name of length more that 50 chars (including space)";
