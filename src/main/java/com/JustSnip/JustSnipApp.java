@@ -5,10 +5,6 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.AWTEventListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,7 +14,6 @@ import java.util.Properties;
 public class JustSnipApp {
 
     private final String strPropertyPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\Config\\";
-    private final String strPropertyFile = "justsnip.config";
     protected String strTargetPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\";
     protected String strTargetFileName = "ScreenShot";
     protected long interval = 2000;
@@ -34,8 +29,6 @@ public class JustSnipApp {
     private JTextField txtFileName;
     private JSpinner spinnerCount;
     private File file;
-    private FileInputStream fis;
-    private FileOutputStream fos;
     private Properties prop;
     private JButton btnHelp;
     private JButton btnSave;
@@ -74,10 +67,10 @@ public class JustSnipApp {
         }
 
         prop = new Properties();
+        String strPropertyFile = "justsnip.config";
         file = new File(strPropertyPath + strPropertyFile);
 
-        try (FileInputStream fis = file.exists() ? new FileInputStream(file) : null;
-             FileOutputStream fos = !file.exists() ? new FileOutputStream(file) : null) {
+        try (FileInputStream fis = file.exists() ? new FileInputStream(file) : null; FileOutputStream fos = !file.exists() ? new FileOutputStream(file) : null) {
 
             if (fis != null) {
                 prop.load(fis);
@@ -111,7 +104,7 @@ public class JustSnipApp {
 
     private void addShortcutsKeySetup() {
         JIntellitype.getInstance();// Register hotkey Ctrl+H
-        JIntellitype.getInstance().registerHotKey(1, JIntellitype.MOD_CONTROL, (int) 'K');
+        JIntellitype.getInstance().registerHotKey(1, JIntellitype.MOD_CONTROL, 'K');
 
         // Add hotkey listener
         JIntellitype.getInstance().addHotKeyListener(hotkey -> {
@@ -216,79 +209,6 @@ public class JustSnipApp {
                 txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
                 frmJustSnip.setVisible(true);
             } catch (IOException | InvalidFormatException | InterruptedException e1) {
-                setErrorMessagePopUp(e1);
-            }
-        });
-
-        btnAutoSnip.setBounds(110, 10, 90, 53);
-        frmJustSnip.getContentPane().add(btnAutoSnip);
-
-        btnRecord = new JButton("Record");
-        btnRecord.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        btnRecord.setBounds(210, 10, 90, 53);
-        frmJustSnip.getContentPane().add(btnRecord);
-
-        JLabel lblTargetFolder = new JLabel("Target Folder:");
-        lblTargetFolder.setBounds(10, 73, 180, 13);
-        frmJustSnip.getContentPane().add(lblTargetFolder);
-
-        JLabel lblTargetFileName = new JLabel("Screenshot File Name:");
-        lblTargetFileName.setBounds(10, 136, 180, 13);
-        frmJustSnip.getContentPane().add(lblTargetFileName);
-
-        txtTargetFolder = new JTextField();
-        txtTargetFolder.setToolTipText("Please enter the folder/path of the file need to be saved in");
-        txtTargetFolder.setBounds(10, 97, 433, 29);
-        txtTargetFolder.setColumns(10);
-        txtTargetFolder.setText(strTargetPath);
-        frmJustSnip.getContentPane().add(txtTargetFolder);
-
-        txtFileName = new JTextField();
-        txtFileName.setToolTipText("Please enter the Filename need to save the Screenshots");
-        txtFileName.setColumns(10);
-        txtFileName.setBounds(10, 159, 433, 29);
-        txtFileName.setText(strTargetFileName);
-        frmJustSnip.getContentPane().add(txtFileName);
-
-        JLabel lblNewLabel = new JLabel("Auto Snip Interval:");
-        lblNewLabel.setBounds(310, 10, 133, 13);
-        frmJustSnip.getContentPane().add(lblNewLabel);
-
-        spinnerCount = new JSpinner();
-        spinnerCount.setModel(new SpinnerNumberModel(2, 1, 60, 1));
-        spinnerCount.setBounds(310, 34, 35, 29);
-        frmJustSnip.getContentPane().add(spinnerCount);
-
-        JLabel lblNewLabel_1 = new JLabel("Second(s) 1-60");
-        lblNewLabel_1.setBounds(348, 42, 95, 13);
-        frmJustSnip.getContentPane().add(lblNewLabel_1);
-
-        btnSave = new JButton("Save File Path");
-        btnSave.setBounds(20, 198, 133, 21);
-        frmJustSnip.getContentPane().add(btnSave);
-
-        btnHelp = new JButton("Help");
-        btnHelp.setBounds(310, 198, 133, 21);
-        frmJustSnip.getContentPane().add(btnHelp);
-
-        btnOpenFile = new JButton("Open Target File");
-        btnOpenFile.setBounds(163, 198, 137, 21);
-        frmJustSnip.getContentPane().add(btnOpenFile);
-    }
-
-    private void addActionListeners(){
-        btnJustSnip.addActionListener(e -> {
-            setTargetFolderAndFilePath();
-            try {
-                JustSnipApp.this.frmJustSnip.setVisible(false);
-                Thread.sleep(500);
-                JustSnip.strJustSnipPath = strTargetPath;
-                JustSnip.strFileName = strTargetFileName;
-                objJustSnip.saveImgInWord(objJustSnip.takeScreenShot());
-                txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
-                JustSnipApp.this.frmJustSnip.setVisible(true);
-            } catch (IOException | InvalidFormatException | InterruptedException e1) {
-                // TODO Auto-generated catch block
                 setErrorMessagePopUp(e1);
             }
         });
@@ -403,7 +323,7 @@ public class JustSnipApp {
                 "1. File Format - Do not provide 'Special chars' in file name\n " +
                 "2. Avoid giving the file name of length more that 50 chars (including space)\n" +
                 "3. The 'Target Folder' path you have provided might not exist, click 'Save File Path'";
-        JustSnipApp.this.frmJustSnip.setVisible(true);
+        frmJustSnip.setVisible(true);
         JOptionPane.showMessageDialog(frmJustSnip, strMsg, "Something went wrong", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -421,11 +341,8 @@ public class JustSnipApp {
     }
 
     private void setTargetFilePathMessagePopUp(String strFieldName) {
-        String strMsg = "Do you want to update the '" + strFieldName + "'?\n\n" +
-                "Note - Then Snip/Record action still continues";
-        int optionType = JOptionPane.showConfirmDialog(frmJustSnip, strMsg,
-                "Attention! "+"'" + strFieldName +"' changed",
-                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        String strMsg = "Do you want to update the '" + strFieldName + "'?\n\n" + "Note - Then Snip/Record action still continues";
+        int optionType = JOptionPane.showConfirmDialog(frmJustSnip, strMsg, "Attention! " + "'" + strFieldName + "' changed", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (optionType == 0) {
             saveFilePath();
         } else {
@@ -446,7 +363,7 @@ public class JustSnipApp {
         prop.setProperty("TargetPath", strTargetPath);
         prop.setProperty("TargetFile", strTargetFileName);
         try {
-            fos = new FileOutputStream(file);
+            FileOutputStream fos = new FileOutputStream(file);
             prop.store(fos, "Target Path");
             fos.close();
             JustSnip.file = null;
@@ -458,6 +375,14 @@ public class JustSnipApp {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
+    }
+    /**
+     * Display an error message in a dialog box.
+     *
+     * @param message The error message to display.
+     */
+    private void displayError(String message) {
+        JOptionPane.showMessageDialog(frmJustSnip, message, "An Error Occurred", JOptionPane.ERROR_MESSAGE);
     }
 
 
