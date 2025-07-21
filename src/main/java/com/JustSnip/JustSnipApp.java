@@ -341,8 +341,11 @@ public class JustSnipApp {
     }
 
     private void setTargetFilePathMessagePopUp(String strFieldName) {
-        String strMsg = "Do you want to update the '" + strFieldName + "'?\n\n" + "Note - Then Snip/Record action still continues";
-        int optionType = JOptionPane.showConfirmDialog(frmJustSnip, strMsg, "Attention! " + "'" + strFieldName + "' changed", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        String strMsg = "Do you want to update the '" + strFieldName + "'?\n\n" +
+                "Note - Then Snip/Record action still continues";
+        int optionType = JOptionPane.showConfirmDialog(frmJustSnip, strMsg,
+                "Attention! "+"'" + strFieldName +"' changed",
+                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (optionType == 0) {
             saveFilePath();
         } else {
