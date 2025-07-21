@@ -1,5 +1,6 @@
 package com.JustSnip;
 
+import com.melloware.jintellitype.JIntellitype;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.swing.*;
@@ -13,7 +14,6 @@ import java.util.Properties;
 public class JustSnipApp {
 
     private final String strPropertyPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\Config\\";
-    private final String strPropertyFile = "justsnip.config";
     protected String strTargetPath = System.getProperty("user.home") + "\\Documents\\JustSnip\\";
     protected String strTargetFileName = "ScreenShot";
     protected long interval = 2000;
@@ -61,16 +61,26 @@ public class JustSnipApp {
      * Setting Target path and File Name for the file.
      */
     private void setProperty() {
-        File theDir = new File(strPropertyPath);
-        if (!theDir.exists()) {
-            theDir.mkdirs();
+        File configDir = new File(strPropertyPath);
+        if (!configDir.exists()) {
+            configDir.mkdirs();
         }
+
         prop = new Properties();
+        String strPropertyFile = "justsnip.config";
         file = new File(strPropertyPath + strPropertyFile);
-        try (FileInputStream fis = new FileInputStream(file)) {
-            prop.load(fis);
-            strTargetPath = prop.getProperty("targetPath", strTargetPath);
-            strTargetFileName = prop.getProperty("targetFileName", strTargetFileName);
+
+        try (FileInputStream fis = file.exists() ? new FileInputStream(file) : null; FileOutputStream fos = !file.exists() ? new FileOutputStream(file) : null) {
+
+            if (fis != null) {
+                prop.load(fis);
+                strTargetPath = prop.getProperty("TargetPath", strTargetPath);
+                strTargetFileName = prop.getProperty("TargetFile", strTargetFileName);
+            } else {
+                prop.setProperty("TargetPath", strTargetPath);
+                prop.setProperty("TargetFile", strTargetFileName);
+                prop.store(fos, "Target Path");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -89,6 +99,31 @@ public class JustSnipApp {
 
         addComponentsToFrame();
         addActionListeners();
+        addShortcutsKeySetup();
+    }
+
+    private void addShortcutsKeySetup() {
+        JIntellitype.getInstance();// Register hotkey Ctrl+H
+        JIntellitype.getInstance().registerHotKey(1, JIntellitype.MOD_CONTROL, 'K');
+
+        // Add hotkey listener
+        JIntellitype.getInstance().addHotKeyListener(hotkey -> {
+            if (hotkey == 1) {
+                try {
+                    if (frmJustSnip.getExtendedState() != 1) {
+                        frmJustSnip.setExtendedState(JFrame.ICONIFIED);
+                    }
+                    Thread.sleep(500);
+                    JustSnip.strJustSnipPath = strTargetPath;
+                    JustSnip.strFileName = strTargetFileName;
+                    objJustSnip.saveImgInWord(objJustSnip.takeScreenShot());
+                } catch (IOException | InvalidFormatException | InterruptedException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                txtMessage.setText("File saved at " + objJustSnip.getStrSavedFilePath());
+            }
+        });
     }
 
     private void addComponentsToFrame() {
@@ -283,26 +318,75 @@ public class JustSnipApp {
     }
 
     private void setErrorMessagePopUp(Exception e1) {
-        String strMsg = e1.toString().substring(0, 30) + "...\n\n " +
+        String strMsg = e1.toString().substring(0, 70) + "...\n\n " +
                 "Please check below points:\n " +
                 "1. File Format - Do not provide 'Special chars' in file name\n " +
-                "2. Avoid giving the file name of length more that 50 chars (including space)";
+                "2. Avoid giving the file name of length more that 50 chars (including space)\n" +
+                "3. The 'Target Folder' path you have provided might not exist, click 'Save File Path'";
         frmJustSnip.setVisible(true);
         JOptionPane.showMessageDialog(frmJustSnip, strMsg, "Something went wrong", JOptionPane.ERROR_MESSAGE);
     }
 
     private void setTargetFolderAndFilePath() {
-        strTargetPath = txtTargetFolder.getText();
-        strTargetFileName = txtFileName.getText();
+        if (!strTargetFileName.equals(txtFileName.getText())) {
+            setTargetFilePathMessagePopUp("Target File Name");
+        }
+        String strNewTargetPath = txtTargetFolder.getText();
+        strNewTargetPath = strNewTargetPath.endsWith("\\") ? strNewTargetPath : strNewTargetPath + "\\";
+        if (!strTargetPath.equals(strNewTargetPath)) {
+            setTargetFilePathMessagePopUp("Target Folder");
+        } else {
+            saveFilePath();
+        }
+    }
+
+    private void setTargetFilePathMessagePopUp(String strFieldName) {
+        String strMsg = "Do you want to update the '" + strFieldName + "'?\n\n" +
+                "Note - Then Snip/Record action still continues";
+        int optionType = JOptionPane.showConfirmDialog(frmJustSnip, strMsg,
+                "Attention! "+"'" + strFieldName +"' changed",
+                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (optionType == 0) {
+            saveFilePath();
+        } else {
+            resetFilePath();
+        }
+    }
+
+    private void resetFilePath() {
+        txtTargetFolder.setText(strTargetPath);
+        txtFileName.setText(strTargetFileName);
     }
 
     private void saveFilePath() {
-        prop.setProperty("targetPath", strTargetPath);
-        prop.setProperty("targetFileName", strTargetFileName);
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            prop.store(fos, null);
-        } catch (IOException e) {
-            e.printStackTrace();
+        strTargetPath = txtTargetFolder.getText();
+        strTargetFileName = txtFileName.getText();
+        //file.createNewFile();
+        strTargetPath = strTargetPath.endsWith("\\") ? strTargetPath : strTargetPath + "\\";
+        prop.setProperty("TargetPath", strTargetPath);
+        prop.setProperty("TargetFile", strTargetFileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            prop.store(fos, "Target Path");
+            fos.close();
+            JustSnip.file = null;
+            File theDir = new File(strTargetPath);
+            if (!theDir.exists()) {
+                theDir.mkdirs();
+            }
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
         }
     }
+    /**
+     * Display an error message in a dialog box.
+     *
+     * @param message The error message to display.
+     */
+    private void displayError(String message) {
+        JOptionPane.showMessageDialog(frmJustSnip, message, "An Error Occurred", JOptionPane.ERROR_MESSAGE);
+    }
+
+
 }
